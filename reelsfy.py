@@ -173,7 +173,7 @@ def generate_short(input_file, output_file):
     except Exception as e:
         print(f"Error during video cropping: {str(e)}")
 
-def generate_viral(transcript): # Inspiredby https://github.com/NisaarAgharia/AI-Shorts-Creator 
+def generate_viral(transcript, num_segments=3): # Inspiredby https://github.com/NisaarAgharia/AI-Shorts-Creator
 
     json_template = '''
         { "segments" :
@@ -188,7 +188,16 @@ def generate_viral(transcript): # Inspiredby https://github.com/NisaarAgharia/AI
         }
     '''
 
-    prompt = f"Given the following video transcript, analyze each part for potential virality and identify 3 most viral segments from the transcript. Each segment should have nothing less than 50 seconds in duration. The provided transcript is as follows: {transcript}. Based on your analysis, return a JSON document containing the timestamps (start and end), the description of the viral part, and its duration. The JSON document should follow this format: {json_template}. Please replace the placeholder values with the actual results from your analysis."
+    prompt = (
+        f"Given the following video transcript, analyze each part for potential virality "
+        f"and identify {num_segments} most viral segments from the transcript. Each "
+        f"segment should have nothing less than 50 seconds in duration. The provided "
+        f"transcript is as follows: {transcript}. Based on your analysis, return a "
+        f"JSON document containing the timestamps (start and end), the description of "
+        f"the viral part, and its duration. The JSON document should follow this "
+        f"format: {json_template}. Please replace the placeholder values with the "
+        f"actual results from your analysis."
+    )
     system = f"You are a Viral Segment Identifier, an AI system that analyzes a video's transcript and predict which segments might go viral on social media platforms. You use factors such as emotional impact, humor, unexpected content, and relevance to current trends to make your predictions. You return a structured JSON document detailing the start and end times, the description, and the duration of the potential viral segments."
     messages = [
         {"role": "system", "content" : system},
@@ -225,9 +234,10 @@ def generate_transcript(input_file):
 def __main__():
 
     # Check command line argument    
-    parser = argparse.ArgumentParser(description='Create 3 reels or tiktoks from Youtube video')
+    parser = argparse.ArgumentParser(description='Create reels or tiktoks from a video')
     parser.add_argument('-v', '--video_id', required=False, help='Youtube video id. Ex: Cuptv7-A4p0 in https://www.youtube.com/watch?v=Cuptv7-A4p0')
     parser.add_argument('-f', '--file', required=False, help='Video file to be used')
+    parser.add_argument('-s', '--segments', type=int, default=3, help='Number of viral segments to generate')
     args = parser.parse_args()
     
     if not args.video_id and not args.file: 
@@ -282,7 +292,7 @@ def __main__():
         transcript = generate_transcript(filename)
         print (transcript)
         
-        viral_segments = generate_viral(transcript)
+        viral_segments = generate_viral(transcript, args.segments)
         content = viral_segments["content"]
         try:
             with open(output_file, 'w', encoding='utf-8') as file:
