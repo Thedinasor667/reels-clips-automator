@@ -77,6 +77,12 @@ For a local file:
 $ python reelsfy.py -f <video file>
 ```
 
+You can also choose how many viral segments to generate using the `-s` option:
+
+```
+$ python reelsfy.py -f <video file> -s 5
+```
+
 Please note that videos should be approximately 20 minutes long due to the total token limit of the gpt-3.5-turbo-16k model.
 
 ## Support
